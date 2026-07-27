@@ -66,6 +66,13 @@ Las imágenes se sirven desde el mismo repositorio con rutas relativas:
 - Consolas: `./assets/consolas/`
 - Controles: `./assets/controles/`
 
+Modelos adicionales registrados:
+
+- Xbox One X → `./assets/consolas/xbox-one-x.png`
+- PC Gamer → `./assets/consolas/pc-gamer.png`
+- PlayStation 4 Slim → `./assets/consolas/ps4-slim.png`
+- Nintendo Switch 2 → `./assets/consolas/nintendo-switch-2.png`
+
 La correspondencia central y los fallbacks están en `equipment-images.js`, dentro de `EQUIPMENT_IMAGE_CATALOG`. Un modelo desconocido usa la imagen genérica de su categoría. Si incluso esa imagen no puede cargarse, el área visual se oculta sin mostrar el antiguo placeholder XE.
 
 ### Agregar imágenes en el futuro

@@ -13,11 +13,15 @@ export const EQUIPMENT_IMAGE_CATALOG={
     items:[
       {label:"Xbox Series X",file:"xbox-series-x.png",terms:["xbox series x","series x"]},
       {label:"Xbox Series S",file:"xbox-series-s.png",terms:["xbox series s","series s"]},
+      {label:"Xbox One X",file:"xbox-one-x.png",terms:["xbox one x","one x"]},
+      {label:"PC Gamer",file:"pc-gamer.png",terms:["pc gamer","computadora gamer","ordenador gamer"]},
       {label:"Xbox One S",file:"xbox-one-s.png",terms:["xbox one s","one s"]},
       {label:"Xbox One",file:"xbox-one.png",terms:["xbox one"]},
       {label:"PlayStation 4 Pro",file:"ps4-pro.png",terms:["playstation 4 pro","ps4 pro"]},
+      {label:"PlayStation 4 Slim",file:"ps4-slim.png",terms:["playstation 4 slim","ps4 slim"]},
       {label:"PlayStation 5",file:"ps5.png",terms:["playstation 5","ps5"]},
       {label:"PlayStation 4",file:"ps4.png",terms:["playstation 4","ps4"]},
+      {label:"Nintendo Switch 2",file:"nintendo-switch-2.png",terms:["nintendo switch 2","switch 2"]},
       {label:"Nintendo Switch",file:"switch.png",terms:["nintendo switch","switch"]}
     ]
   },
