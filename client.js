@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{equipmentImageMarkup,bindEquipmentImageFallbacks}from"./equipment-images.js";
+import{equipmentImageMarkup,bindEquipmentImageFallbacks}from"./equipment-images.js?v=20260727-4";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getFirestore,doc,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
