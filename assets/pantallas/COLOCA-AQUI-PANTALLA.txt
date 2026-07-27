@@ -1,0 +1,8 @@
+Coloca en esta carpeta tu imagen genérica con el nombre exacto:
+
+pantalla.png
+
+Ruta final:
+assets/pantallas/pantalla.png
+
+La misma imagen se mostrará para cualquier marca o modelo de pantalla.

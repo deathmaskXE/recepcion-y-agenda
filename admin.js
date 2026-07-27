@@ -398,6 +398,25 @@ if(paramsAdmin.get("desdeCita")==="1"){
 
 function moneda(v){return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN"}).format(Number(v)||0)}
 function fechaLarga(v){return v?new Date(v).toLocaleString("es-MX",{dateStyle:"long",timeStyle:"short"}):"No especificada"}
+function fechaMilisegundos(v){
+  if(!v)return null;
+  if(typeof v.toMillis==="function")return v.toMillis();
+  const n=typeof v==="number"?v:new Date(v).getTime();
+  return Number.isFinite(n)?n:null;
+}
+function primeraFechaCaptura(x){
+  const fechas=[fechaMilisegundos(x.recibido),...(x.historial||[]).map(h=>fechaMilisegundos(h.fecha))].filter(Boolean);
+  return fechas.length?Math.min(...fechas):null;
+}
+function ultimaFechaEntrega(x){
+  const entregas=[
+    fechaMilisegundos(x.entregado),
+    ...(x.historial||[])
+      .filter(h=>String(h.estado||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()==="entregado")
+      .map(h=>fechaMilisegundos(h.fecha))
+  ].filter(Boolean);
+  return entregas.length?Math.max(...entregas):null;
+}
 function pdfMarco(p,primario,secundario){
   p.setFillColor(248,248,248);p.rect(0,0,210,297,"F");
   p.setDrawColor(...primario);p.setLineWidth(1.2);p.roundedRect(8,8,194,281,3,3,"S");
@@ -498,6 +517,8 @@ async function generarPDFEntrega(x){
     const {jsPDF}=window.jspdf,p=new jsPDF({unit:"mm",format:"a4",compress:true});
     const azul=[16,151,211],azulOscuro=[7,53,88],oro=[207,161,55],plata=[168,178,189],negro=[8,12,18];
     const total=Number(x.costoTotal)||0,anticipo=Number(x.anticipo)||0,pagoFinal=Math.max(0,total-anticipo);
+    const fechaCaptura=primeraFechaCaptura(x)||fechaMilisegundos(x.recibido);
+    const fechaEntrega=ultimaFechaEntrega(x)||fechaMilisegundos(x.entregado)||Date.now();
 
     // Fondo y marco metálico.
     p.setFillColor(5,9,15);p.rect(0,0,210,297,"F");
@@ -513,7 +534,8 @@ async function generarPDFEntrega(x){
     p.setTextColor(...oro);p.setFontSize(8.5);p.text("COMPROBANTE DE SERVICIO Y PAGO",194,38,{align:"right"});
     p.setTextColor(...plata);p.setFont("helvetica","normal");p.setFontSize(7.2);
     p.text(`FOLIO  ${x.id}`,194,49,{align:"right"});
-    p.text(`EMISIÓN  ${fechaLarga(x.entregado||Date.now())}`,194,56,{align:"right"});
+    p.text(`CAPTURA  ${fechaLarga(fechaCaptura)}`,194,55,{align:"right"});
+    p.text(`ENTREGA  ${fechaLarga(fechaEntrega)}`,194,61,{align:"right"});
     p.setTextColor(...azul);p.setFont("helvetica","bold");p.setFontSize(7.3);p.text("SERVICIO FINALIZADO",194,64,{align:"right"});
 
     // Datos cliente / taller.
@@ -531,8 +553,8 @@ async function generarPDFEntrega(x){
     premiumPanel(p,12,135,186,36,"Información del servicio",azul,false);
     premiumField(p,"Equipo",x.equipo,18,154,38,azul);
     premiumField(p,"Modelo / versión",x.modelo||"No especificado",61,154,38,azul);
-    premiumField(p,"Fecha de recepción",fechaLarga(x.recibido),104,154,40,azul);
-    premiumField(p,"Fecha de entrega",fechaLarga(x.entregado||Date.now()),149,154,41,azul);
+    premiumField(p,"Primera captura",fechaLarga(fechaCaptura),104,154,40,azul);
+    premiumField(p,"Última entrega",fechaLarga(fechaEntrega),149,154,41,azul);
 
     // Reparación realizada, sin resumen de servicio.
     premiumPanel(p,12,177,186,43,"Reparación realizada",oro,false);
