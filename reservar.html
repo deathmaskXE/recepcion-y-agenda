@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agendar cita | XE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grid"></div>
+  <header><div class="kicker">XE SERVICIO ELECTRÓNICO</div><h1>AGENDA <span>TU CITA</span></h1><p>Atención privada con horario reservado</p></header>
+  <main class="client booking-page">
+    <section class="panel booking-intro"><small>SOLICITUD DE CITA</small><h2>ELIGE UN HORARIO DISPONIBLE</h2><p>Cada cita reserva una hora completa. Tu solicitud quedará pendiente hasta que el taller la confirme.</p></section>
+    <section class="panel">
+      <div class="form">
+        <input id="cliente" maxlength="80" autocomplete="name" placeholder="Nombre completo">
+        <input id="telefono" maxlength="20" inputmode="tel" autocomplete="tel" placeholder="WhatsApp">
+        <input id="equipo" list="equipoOptions" maxlength="120" placeholder="Equipo que llevarás">
+        <input id="modelo" list="modeloOptions" maxlength="100" placeholder="Modelo / versión">
+        <datalist id="equipoOptions"><option value="Xbox One"><option value="Xbox One S"><option value="Xbox Series S"><option value="Xbox Series X"><option value="PlayStation 4"><option value="PlayStation 4 Pro"><option value="PlayStation 5"><option value="Nintendo Switch"><option value="Control"></datalist>
+        <datalist id="modeloOptions"><option value="PS4"><option value="PS4 Pro"><option value="PS5"><option value="Xbox One"><option value="Xbox One S"><option value="Xbox Series S"><option value="Xbox Series X"><option value="Nintendo Switch"></datalist>
+        <div id="bookingEquipmentPreview" class="equipment-preview-field"></div>
+        <textarea id="falla" maxlength="500" placeholder="Describe brevemente la falla"></textarea>
+        <label class="booking-date">FECHA<input id="fechaReserva" type="date"></label>
+      </div>
+      <div class="availability-head"><div><small>HORARIOS DE UNA HORA</small><h2 id="availabilityTitle">Selecciona una fecha</h2></div><button id="refreshSlots" type="button" class="secondary-action">ACTUALIZAR</button></div>
+      <div id="slots" class="slots" aria-live="polite"><p class="empty-group">Primero selecciona una fecha.</p></div>
+      <button id="solicitarCita" type="button" class="booking-submit" disabled>SOLICITAR CONFIRMACIÓN</button>
+      <p id="bookingMsg" class="booking-message" role="status" aria-live="polite"></p>
+    </section>
+    <a class="adminlink" href="index.html">CONSULTAR REPARACIÓN</a>
+  </main>
+  <script type="module" src="reservar.js"></script>
+</body>
+</html>
