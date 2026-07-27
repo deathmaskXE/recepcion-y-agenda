@@ -82,3 +82,16 @@ input:focus,textarea:focus,select:focus{background:#fff;border-color:#00aebe;box
 .step{color:#587176}.step.done{color:#10383d;font-weight:850}.step i{background:#fff;border-color:rgba(0,155,165,.3)}
 .phone-value,.private-value,.backup-panel #backupMsg{color:#355b60}
 @media(prefers-reduced-motion:reduce){.adminlink{animation:none;box-shadow:0 0 14px rgba(0,190,205,.5)}}
+
+/* CONTRASTE DE INGRESOS · RESPLANDOR NEGRO · ARCHIVO MENSUAL */
+#statIngresos.private-value,#statIngresos.private-value.revealed{color:#071f23!important;-webkit-text-fill-color:#071f23!important;text-shadow:none!important;opacity:1!important}
+@keyframes equipmentBlackPulse{0%,100%{box-shadow:0 8px 18px rgba(0,0,0,.2),0 0 5px rgba(0,0,0,.18)}50%{box-shadow:0 16px 30px rgba(0,0,0,.48),0 0 24px rgba(0,0,0,.58),0 0 42px rgba(0,0,0,.28)}}
+.equipment-visual{animation:equipmentBlackPulse 2.1s ease-in-out infinite;border-color:rgba(0,0,0,.42)!important}
+.monthly-heading,.archive-heading,.month-archive>summary{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.monthly-heading{margin:0 0 14px;padding:16px 18px;border:2px solid rgba(0,157,166,.34);border-radius:14px;background:linear-gradient(135deg,#fff,#dff8f5);box-shadow:0 12px 26px rgba(0,70,75,.1)}
+.monthly-heading small,.archive-heading small{display:block;color:#007f79;font-size:8px;font-weight:900;letter-spacing:.15em}.monthly-heading h3,.archive-heading h3{margin:5px 0 0;color:#092f34;font-size:14px}.monthly-heading>b{color:#08383d}
+.archive-heading{margin:28px 0 12px;padding:0 4px}.archive-heading h3{font-size:13px}
+.month-archive{margin:0 0 12px;overflow:hidden;border:2px solid rgba(8,37,41,.3);border-radius:14px;background:#faffff;box-shadow:0 10px 24px rgba(0,0,0,.1)}
+.month-archive>summary{cursor:pointer;padding:17px 19px;list-style:none;background:linear-gradient(135deg,#f8ffff,#dcefed);user-select:none}.month-archive>summary::-webkit-details-marker{display:none}.month-archive>summary:before{content:"+";display:grid;place-items:center;width:27px;height:27px;flex:0 0 27px;border-radius:50%;color:#fff;background:#092f34;font-size:17px}.month-archive[open]>summary:before{content:"−"}.month-archive>summary span{margin-right:auto;color:#092f34;font-weight:900;letter-spacing:.07em}.month-archive>summary b{color:#006f6a;font-size:9px}.month-archive-content{padding:15px}
+@media(prefers-reduced-motion:reduce){.equipment-visual{animation:none;box-shadow:0 12px 26px rgba(0,0,0,.4)}}
+@media(max-width:600px){.monthly-heading,.month-archive>summary{align-items:flex-start}.month-archive>summary{flex-wrap:wrap}.month-archive>summary b{margin-left:42px}.month-archive-content{padding:10px}}

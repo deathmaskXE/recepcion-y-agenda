@@ -53,6 +53,7 @@ El documento no es una factura ni un comprobante fiscal. No incluye QR ni el apa
 - Ingresos y teléfonos permanecen ocultos por defecto en los paneles privados.
 - La captura de equipos usa dos selectores separados: primero Consola/Control y después el modelo correspondiente.
 - Los PDF de cita, recepción y entrega integran la imagen dentro de la misma hoja, acompañada por un aviso antifraude que aclara que es ilustrativa y no identifica el equipo físico.
+- El panel organiza los equipos por mes de recepción: el mes actual permanece visible y los meses anteriores se muestran en menús plegables.
 
 ## Importante al publicar
 

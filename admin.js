@@ -172,6 +172,17 @@ function esMesActual(v){
   return !!fecha&&fecha.getFullYear()===hoy.getFullYear()&&fecha.getMonth()===hoy.getMonth();
 }
 
+function claveMesEquipo(x){
+  const fecha=valorFecha(x.recibido)||valorFecha(x.creada);
+  if(!fecha)return"sin-fecha";
+  return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,"0")}`;
+}
+
+function nombreMesEquipo(x){
+  const fecha=valorFecha(x.recibido)||valorFecha(x.creada);
+  return fecha?fecha.toLocaleDateString("es-MX",{month:"long",year:"numeric"}):"Sin fecha de recepción";
+}
+
 function renderStats(){
   const entregadosMes=all.filter(x=>x.estado==="Entregado"&&esMesActual(x.entregado));
   $("statTaller").textContent=all.filter(x=>x.estado!=="Entregado"&&x.estado!=="Devolución").length;
@@ -254,17 +265,28 @@ $("exportCsv").onclick=()=>{
 function render(){
   const f=$("filter").value.toLowerCase();
   const arr=all.filter(x=>(x.id+" "+x.cliente+" "+x.equipo).toLowerCase().includes(f));
-  const taller=arr.filter(x=>x.estado!=="Entregado"&&x.estado!=="Devolución");
-  const entregados=arr.filter(x=>x.estado==="Entregado");
-  const devoluciones=arr.filter(x=>x.estado==="Devolución");
 
   const tarjeta=x=>{const g=garantiaInfo(x);const historial=(x.historial||[]).slice().reverse();const clase=x.estado==="Entregado"?"item-entregado":x.estado==="Devolución"?"item-devolucion":"item-taller";const telefono=mostrarTelefonos?esc(x.telefono||"Sin número"):"••• ••• ••••";return `<div class="item ${clase}">${equipmentImageMarkup(x.equipo,x.modelo,true)}<div class="itemtop"><div><h3>${x.id} · ${esc(x.equipo)}</h3><p>${esc(x.cliente)} · ${esc(x.falla||"Sin falla reportada")}</p><p>WhatsApp: <span class="phone-value">${telefono}</span></p><div class="warranty-badge ${g.clase}"><b>${g.texto}</b><span>${g.detalle}</span></div></div><b>${x.estado}</b></div><div class="controls"><select data-state="${x.id}">${states.map(s=>`<option ${s===x.estado?"selected":""}>${s}</option>`).join("")}</select><textarea data-note="${x.id}" placeholder="Nueva actualización visible para el cliente">${esc(x.nota||"")}</textarea><button data-save="${x.id}">GUARDAR Y AVISAR</button></div><div class="financial-edit"><input type="number" min="0" step="0.01" data-anticipo="${x.id}" value="${Number(x.anticipo||0)}" placeholder="Anticipo"><input type="number" min="0" step="0.01" data-total="${x.id}" value="${Number(x.costoTotal||0)}" placeholder="Costo total"><textarea data-reparacion="${x.id}" placeholder="Reparación realizada para el PDF de entrega">${esc(x.reparacionRealizada||"")}</textarea><button data-finanzas="${x.id}">GUARDAR IMPORTES</button></div><div class="pdf-actions"><button data-pdf-recepcion="${x.id}">PDF RECEPCIÓN Y ANTICIPO</button><button data-pdf-entrega="${x.id}">NOTA DE ENTREGA Y PAGO</button></div><label class="notify-check"><input type="checkbox" data-notify="${x.id}" checked> Abrir WhatsApp con el aviso después de guardar</label><details class="admin-history"><summary>HISTORIAL (${historial.length})</summary><div>${historial.map(h=>`<div class="history-entry"><small>${new Date(h.fecha).toLocaleString("es-MX")}</small><b>${esc(h.estado||"")}</b><span>${esc(h.nota||"Sin nota")}</span></div>`).join("")||"<p>Sin historial.</p>"}</div></details></div>`};
 
   const bloque=(titulo,clase,datos,vacio)=>`<section class="equipment-group ${clase}"><div class="equipment-group-title"><h3>${titulo}</h3><span>${datos.length}</span></div>${datos.length?datos.map(tarjeta).join(""):`<p class="empty-group">${vacio}</p>`}</section>`;
-  $("list").innerHTML=
-    bloque("EQUIPOS EN TALLER","group-taller",taller,"No hay equipos activos en el taller.")+
-    bloque("EQUIPOS ENTREGADOS","group-entregados",entregados,"Todavía no hay equipos entregados.")+
-    bloque("DEVOLUCIONES","group-devoluciones",devoluciones,"No hay equipos en devolución.");
+  const secciones=datos=>{
+    const taller=datos.filter(x=>x.estado!=="Entregado"&&x.estado!=="Devolución");
+    const entregados=datos.filter(x=>x.estado==="Entregado");
+    const devoluciones=datos.filter(x=>x.estado==="Devolución");
+    return bloque("EQUIPOS EN TALLER","group-taller",taller,"No hay equipos activos en el taller.")+
+      bloque("EQUIPOS ENTREGADOS","group-entregados",entregados,"No hay equipos entregados en este mes.")+
+      bloque("DEVOLUCIONES","group-devoluciones",devoluciones,"No hay devoluciones en este mes.");
+  };
+  const hoy=new Date(),mesActual=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}`;
+  const actuales=arr.filter(x=>claveMesEquipo(x)===mesActual);
+  const mesesAnteriores=new Map();
+  arr.filter(x=>claveMesEquipo(x)!==mesActual).forEach(x=>{
+    const clave=claveMesEquipo(x);
+    if(!mesesAnteriores.has(clave))mesesAnteriores.set(clave,[]);
+    mesesAnteriores.get(clave).push(x);
+  });
+  const archivos=[...mesesAnteriores.entries()].sort(([a],[b])=>b.localeCompare(a)).map(([clave,datos])=>`<details class="month-archive"${f?" open":""}><summary><span>${nombreMesEquipo(datos[0]).toUpperCase()}</span><b>${datos.length} EQUIPO${datos.length===1?"":"S"}</b></summary><div class="month-archive-content">${secciones(datos)}</div></details>`).join("");
+  $("list").innerHTML=`<section class="current-month"><div class="monthly-heading"><div><small>MES ACTUAL</small><h3>${hoy.toLocaleDateString("es-MX",{month:"long",year:"numeric"}).toUpperCase()}</h3></div><b>${actuales.length} EQUIPO${actuales.length===1?"":"S"}</b></div>${secciones(actuales)}</section>${archivos?`<div class="archive-heading"><small>ARCHIVO POR FECHA DE RECEPCIÓN</small><h3>MESES ANTERIORES</h3></div>${archivos}`:""}`;
   bindEquipmentImageFallbacks($("list"));
 
   document.querySelectorAll("[data-finanzas]").forEach(b=>b.onclick=async()=>{
