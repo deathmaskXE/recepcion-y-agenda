@@ -26,7 +26,7 @@ $("crearCita").onclick=async()=>{try{
  ultimaCita={id:folio,...d};
  $("createdCita").innerHTML=`CITA CREADA: ${folio}<br><br><button id="enviarCitaWhatsapp">ENVIAR CITA POR WHATSAPP</button>`;
  document.getElementById("enviarCitaWhatsapp").onclick=()=>enviarCita(ultimaCita);
- ["cliente","telefono","equipo","modelo","falla","fecha","hora"].forEach(id=>$(id).value="");
+ ["cliente","telefono","equipo","modelo","falla","fecha","hora"].forEach(id=>$(id).value="");$("equipo").dispatchEvent(new Event("change"));
 }catch(e){console.error(e);alert("No se pudo crear la cita: "+(e.code||e.message))}};
 
 function escuchar(){onSnapshot(query(collection(db,"citas"),orderBy("creada","desc")),s=>{citas=s.docs.map(x=>({id:x.id,...x.data()}));render()})}

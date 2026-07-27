@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview}from"./equipment-images.js";
+import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview,setEquipmentFormValues}from"./equipment-images.js";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,getDocs}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -82,7 +82,7 @@ $("crear").onclick=async()=>{
     document.getElementById("pdfRecepcionNueva").addEventListener("click",()=>generarPDFRecepcion(ultimaRecepcion));
     document.getElementById("enviarWhatsapp").addEventListener("click",()=>enviarFolioWhatsApp(ultimaRecepcion));
 
-    ["cliente","telefono","equipo","modelo","falla","nota","accesorios","observaciones","anticipo","costoTotal"].forEach(x=>$(x).value="");$("garantiaTiempo").value="30";$("garantiaUnidad").value="dias";
+    ["cliente","telefono","equipo","modelo","falla","nota","accesorios","observaciones","anticipo","costoTotal"].forEach(x=>$(x).value="");$("equipo").dispatchEvent(new Event("change"));$("garantiaTiempo").value="30";$("garantiaUnidad").value="dias";
   }catch(e){
     console.error(e);
     alert("No se pudo crear la recepción: "+(e.code||e.message));
@@ -364,8 +364,7 @@ if(paramsAdmin.get("desdeCita")==="1"){
       const cargar=()=>{
         $("cliente").value=cita.cliente||"";
         $("telefono").value=cita.telefono||"";
-        $("equipo").value=cita.equipo||"";
-        $("modelo").value=cita.modelo||"";
+        setEquipmentFormValues("equipo","modelo",cita.equipo||"",cita.modelo||"");
         $("falla").value=cita.falla||"";
         $("nota").value=`Cita ${cita.id} convertida en recepción.`;
       };

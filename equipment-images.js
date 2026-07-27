@@ -62,31 +62,57 @@ export function resolveEquipmentImage(equipo,modelo){
 
 export function equipmentImageMarkup(equipo,modelo,compact=false){
   const match=resolveEquipmentImage(equipo,modelo);
-  return `<div class="equipment-visual ${compact?"compact":""} ${match.isFallback?"is-fallback":""}"><img src="${match.src}" alt="${match.label}" loading="lazy"><div class="equipment-placeholder" hidden role="img" aria-label="Imagen no disponible"><b>XE</b><span>IMAGEN NO DISPONIBLE</span></div>${match.isFallback?`<small class="fallback-label">${match.label.toUpperCase()}</small>`:""}</div>`;
+  return `<div class="equipment-visual ${compact?"compact":""} ${match.isFallback?"is-fallback":""}"><img src="${match.src}" alt="${match.label}" loading="lazy">${match.isFallback?`<small class="fallback-label">${match.label.toUpperCase()}</small>`:""}</div>`;
 }
 
 export function bindEquipmentImageFallbacks(root=document){
   root.querySelectorAll(".equipment-visual img").forEach(img=>{
-    img.onerror=()=>{img.hidden=true;const placeholder=img.nextElementSibling;if(placeholder)placeholder.hidden=false};
+    img.onerror=()=>{img.closest(".equipment-visual")?.classList.add("hidden")};
   });
 }
 
-function populateEquipmentDatalists(equipo,modelo){
-  const equipoList=equipo.list,modeloList=modelo.list;
-  const add=(list,value)=>{if(list&&![...list.options].some(option=>option.value===value)){const option=document.createElement("option");option.value=value;list.appendChild(option)}};
-  add(equipoList,"Consola");
-  add(equipoList,"Control");
-  Object.values(EQUIPMENT_IMAGE_CATALOG).forEach(category=>category.items.forEach(item=>add(modeloList,item.label)));
+function categoryKeyFromSelect(value){
+  return normalize(value)==="control"?"controllers":"consoles";
+}
+
+function fillModelSelect(categorySelect,modelSelect,selected=""){
+  const categoryKey=categorySelect.value?categoryKeyFromSelect(categorySelect.value):null;
+  modelSelect.innerHTML='<option value="">2. Escoge el modelo</option>';
+  modelSelect.disabled=!categoryKey;
+  if(!categoryKey)return;
+  EQUIPMENT_IMAGE_CATALOG[categoryKey].items.forEach(item=>{
+    const option=document.createElement("option");
+    option.value=item.label;
+    option.textContent=item.label;
+    modelSelect.appendChild(option);
+  });
+  if(selected&&![...modelSelect.options].some(option=>option.value===selected)){
+    const option=document.createElement("option");option.value=selected;option.textContent=selected;modelSelect.appendChild(option);
+  }
+  modelSelect.value=selected;
+}
+
+export function setEquipmentFormValues(equipoId,modeloId,equipoValue,modeloValue){
+  const equipo=document.getElementById(equipoId),modelo=document.getElementById(modeloId);
+  if(!equipo||!modelo)return;
+  const categoryKey=detectCategory(equipoValue,modeloValue),resolved=resolveEquipmentImage(equipoValue,modeloValue);
+  equipo.value=categoryKey==="controllers"?"Control":"Consola";
+  fillModelSelect(equipo,modelo,resolved.isFallback?(modeloValue||""):resolved.label);
+  modelo.dispatchEvent(new Event("change",{bubbles:true}));
 }
 
 export function setupEquipmentPreview(equipoId,modeloId,containerId){
-  const equipo=document.getElementById(equipoId),modelo=document.getElementById(modeloId),container=document.getElementById(containerId);
-  if(!equipo||!modelo||!container)return;
-  populateEquipmentDatalists(equipo,modelo);
-  const render=()=>{container.innerHTML=equipmentImageMarkup(equipo.value,modelo.value);bindEquipmentImageFallbacks(container)};
-  equipo.addEventListener("input",render);
-  equipo.addEventListener("change",render);
-  modelo.addEventListener("input",render);
+  const originalEquipo=document.getElementById(equipoId),originalModelo=document.getElementById(modeloId),container=document.getElementById(containerId);
+  if(!originalEquipo||!originalModelo||!container)return;
+  const initialEquipo=originalEquipo.value,initialModelo=originalModelo.value;
+  const equipo=document.createElement("select"),modelo=document.createElement("select");
+  equipo.id=equipoId;equipo.innerHTML='<option value="">1. Escoge consola o control</option><option value="Consola">Consola</option><option value="Control">Control</option>';
+  modelo.id=modeloId;
+  originalEquipo.replaceWith(equipo);
+  originalModelo.replaceWith(modelo);
+  fillModelSelect(equipo,modelo);
+  const render=()=>{if(!equipo.value||!modelo.value){container.innerHTML="";return}container.innerHTML=equipmentImageMarkup(equipo.value,modelo.value);bindEquipmentImageFallbacks(container)};
+  equipo.addEventListener("change",()=>{fillModelSelect(equipo,modelo);render()});
   modelo.addEventListener("change",render);
-  render();
+  if(initialEquipo||initialModelo)setEquipmentFormValues(equipoId,modeloId,initialEquipo,initialModelo);else render();
 }

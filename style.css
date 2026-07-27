@@ -44,3 +44,9 @@ button,.button-link{border-radius:9px;background:linear-gradient(120deg,#0d8996,
 .fallback-label{position:absolute;right:10px;bottom:8px;padding:4px 7px;border-radius:20px;background:rgba(2,9,10,.8);color:#a9c7c5;font-size:7px;font-weight:800;letter-spacing:.1em}
 .item:after{content:"";display:block;clear:both}
 @media(max-width:600px){.equipment-preview-field{grid-column:auto}.equipment-visual{min-height:190px}.equipment-visual img{height:160px}.equipment-visual.compact{float:none;width:100%;min-height:120px;margin:0 0 12px}.equipment-visual.compact img{height:105px}}
+
+/* SELECTORES SEPARADOS Y VISTA DE EQUIPO AMPLIADA */
+.equipment-preview-field .equipment-visual{min-height:320px}
+.equipment-preview-field .equipment-visual img{width:min(390px,92%);height:280px}
+.equipment-placeholder{display:none!important}
+@media(max-width:600px){.equipment-preview-field .equipment-visual{min-height:255px}.equipment-preview-field .equipment-visual img{width:min(330px,94%);height:220px}}

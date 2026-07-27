@@ -57,7 +57,7 @@ $("solicitarCita").onclick=async()=>{
     batch.set(doc(db,"disponibilidad_citas",`${fecha}_${hora.replace(":","-")}`),{fecha,hora,solicitud:folio});
     await batch.commit();
     $("bookingMsg").innerHTML=`<strong>SOLICITUD RECIBIDA</strong><br>Folio ${folio}. El taller confirmará contigo por WhatsApp.`;
-    ["cliente","telefono","equipo","modelo","falla"].forEach(id=>$(id).value="");
+    ["cliente","telefono","equipo","modelo","falla"].forEach(id=>$(id).value="");$("equipo").dispatchEvent(new Event("change"));
     await cargarHorarios();
   }catch(e){console.error(e);$("bookingMsg").textContent="No se pudo enviar la solicitud. Revisa los datos e intenta nuevamente."}
 };

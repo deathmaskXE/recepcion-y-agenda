@@ -51,6 +51,7 @@ El documento no es una factura ni un comprobante fiscal. No incluye QR ni el apa
 - Las solicitudes públicas quedan pendientes hasta que el taller las confirme en `agenda.html`.
 - Al convertir una cita y crear la recepción, la cita se elimina de la agenda y permanece únicamente como recepción.
 - Ingresos y teléfonos permanecen ocultos por defecto en los paneles privados.
+- La captura de equipos usa dos selectores separados: primero Consola/Control y después el modelo correspondiente.
 
 ## Importante al publicar
 
@@ -65,7 +66,7 @@ Las imágenes se sirven desde el mismo repositorio con rutas relativas:
 - Consolas: `./assets/consolas/`
 - Controles: `./assets/controles/`
 
-La correspondencia central y los fallbacks están en `equipment-images.js`, dentro de `EQUIPMENT_IMAGE_CATALOG`. Un modelo desconocido usa la imagen genérica de su categoría. Si incluso esa imagen no puede cargarse, la interfaz muestra el placeholder XE.
+La correspondencia central y los fallbacks están en `equipment-images.js`, dentro de `EQUIPMENT_IMAGE_CATALOG`. Un modelo desconocido usa la imagen genérica de su categoría. Si incluso esa imagen no puede cargarse, el área visual se oculta sin mostrar el antiguo placeholder XE.
 
 ### Agregar imágenes en el futuro
 
