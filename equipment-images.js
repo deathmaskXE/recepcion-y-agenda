@@ -75,6 +75,29 @@ export function bindEquipmentImageFallbacks(root=document){
   });
 }
 
+export async function addEquipmentReferenceInline(pdf,equipo,modelo,x,y,w,h,dark=true){
+  const match=resolveEquipmentImage(equipo,modelo);
+  const image=await new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>resolve(null);
+    img.src=match.src;
+  });
+  pdf.setFillColor(...(dark?[7,27,31]:[246,253,252]));
+  pdf.setDrawColor(0,206,196);pdf.setLineWidth(.45);pdf.roundedRect(x,y,w,h,2,2,"FD");
+  const labelHeight=8,imageHeight=h-labelHeight-3;
+  if(image){
+    const maxW=w-4,maxH=imageHeight,ratio=Math.min(maxW/image.naturalWidth,maxH/image.naturalHeight);
+    const width=image.naturalWidth*ratio,height=image.naturalHeight*ratio;
+    pdf.addImage(image,"PNG",x+(w-width)/2,y+1.5+(maxH-height)/2,width,height,undefined,"FAST");
+  }else{
+    pdf.setTextColor(...(dark?[210,235,234]:[55,83,86]));pdf.setFontSize(5.5);pdf.text("IMAGEN NO DISPONIBLE",x+w/2,y+imageHeight/2,{align:"center"});
+  }
+  pdf.setTextColor(...(dark?[148,247,235]:[0,105,96]));pdf.setFont("helvetica","bold");pdf.setFontSize(4.4);
+  const aviso=pdf.splitTextToSize("IMAGEN ILUSTRATIVA · NO CORRESPONDE NI IDENTIFICA EL EQUIPO FÍSICO",w-4).slice(0,2);
+  pdf.text(aviso,x+w/2,y+h-5.2,{align:"center"});
+}
+
 function categoryKeyFromSelect(value){
   return normalize(value)==="control"?"controllers":"consoles";
 }

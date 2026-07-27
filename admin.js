@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview,setEquipmentFormValues}from"./equipment-images.js?v=20260727-4";
+import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview,setEquipmentFormValues,addEquipmentReferenceInline}from"./equipment-images.js?v=20260727-7";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,getDocs}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -410,7 +410,7 @@ function pdfTextoLargo(p,etiqueta,valor,x,y,w,h,primario){
   p.setTextColor(...primario);p.setFont("helvetica","bold");p.setFontSize(7);p.text(etiqueta.toUpperCase(),x+5,y+6);
   p.setTextColor(45,45,48);p.setFont("helvetica","normal");p.setFontSize(8.5);const lines=p.splitTextToSize(String(valor??"No especificado"),w-10);p.text(lines.slice(0,Math.max(1,Math.floor((h-10)/4.5))),x+5,y+12);
 }
-function generarPDFRecepcion(x){
+async function generarPDFRecepcion(x){
   if(!x||!window.jspdf)return alert("No se pudo cargar el generador PDF.");
   const {jsPDF}=window.jspdf,p=new jsPDF();const rojo=[132,18,32],plata=[132,140,151];
   pdfMarco(p,rojo,plata);pdfTitulo(p,"RECEPCIÓN DE EQUIPO","Comprobante de ingreso y anticipo",rojo);
@@ -427,7 +427,7 @@ function generarPDFRecepcion(x){
   p.setFillColor(249,249,250);p.setDrawColor(...plata);p.roundedRect(18,237,174,27,2,2,"FD");
   p.setTextColor(...rojo);p.setFont("helvetica","bold");p.setFontSize(7.5);p.text("POLÍTICA DE DEVOLUCIÓN",25,246);
   p.setTextColor(55,55,58);p.setFont("helvetica","normal");p.setFontSize(7.5);const aviso=p.splitTextToSize("Todo equipo devuelto por no poder repararse o por no aceptar el presupuesto tiene un costo de $200 MXN. En controles, el costo es de $50 MXN.",158);p.text(aviso,25,252);
-  pdfPie(p,rojo);p.save(`Recepcion-Anticipo-${x.folio||x.id}.pdf`)
+  pdfPie(p,rojo);await addEquipmentReferenceInline(p,x.equipo,x.modelo,151,16,39,31,true);p.save(`Recepcion-Anticipo-${x.folio||x.id}.pdf`)
 }
 const DATOS_TALLER={
   nombre:"XE Servicio Electrónico",
@@ -537,6 +537,7 @@ async function generarPDFEntrega(x){
     p.text(`YouTube: ${DATOS_TALLER.youtube}   |   Google Maps: ${DATOS_TALLER.maps}`,105,282,{align:"center"});
     p.setTextColor(...oro);p.setFont("helvetica","bold");p.setFontSize(7.5);p.text(`${DATOS_TALLER.nombre.toUpperCase()}  •  ${DATOS_TALLER.slogan.toUpperCase()}`,105,289,{align:"center"});
 
+    await addEquipmentReferenceInline(p,x.equipo,x.modelo,76,16,38,44,true);
     p.save(`Nota-Entrega-Pagada-${x.id}.pdf`);
   }catch(e){console.error(e);alert("No se pudo crear la Nota de Entrega: "+e.message)}
 }

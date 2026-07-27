@@ -52,6 +52,7 @@ El documento no es una factura ni un comprobante fiscal. No incluye QR ni el apa
 - Al convertir una cita y crear la recepción, la cita se elimina de la agenda y permanece únicamente como recepción.
 - Ingresos y teléfonos permanecen ocultos por defecto en los paneles privados.
 - La captura de equipos usa dos selectores separados: primero Consola/Control y después el modelo correspondiente.
+- Los PDF de cita, recepción y entrega integran la imagen dentro de la misma hoja, acompañada por un aviso antifraude que aclara que es ilustrativa y no identifica el equipo físico.
 
 ## Importante al publicar
 

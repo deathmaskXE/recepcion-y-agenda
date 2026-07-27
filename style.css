@@ -50,3 +50,35 @@ button,.button-link{border-radius:9px;background:linear-gradient(120deg,#0d8996,
 .equipment-preview-field .equipment-visual img{width:min(390px,92%);height:280px}
 .equipment-placeholder{display:none!important}
 @media(max-width:600px){.equipment-preview-field .equipment-visual{min-height:255px}.equipment-preview-field .equipment-visual img{width:min(330px,94%);height:220px}}
+
+/* TEMA BLANCO METÁLICO · ALTO CONTRASTE · ACCESOS NEÓN */
+:root{--text:#102b2f;--muted:#49656a;--line:rgba(0,160,170,.28);--cyan:#00bcd4;--ice:#047f8b;--green:#009f7f}
+body{color:var(--text);font-weight:650;background:radial-gradient(circle at 12% 0,rgba(0,220,230,.2),transparent 30%),radial-gradient(circle at 92% 4%,rgba(0,220,175,.16),transparent 28%),linear-gradient(145deg,#fff 0%,#f0fbfb 45%,#e4f5f3 100%)}
+.grid{opacity:.45;background-image:linear-gradient(rgba(0,155,165,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,155,165,.07) 1px,transparent 1px)}
+header{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(239,252,251,.86));border-color:rgba(0,172,180,.28);box-shadow:0 14px 45px rgba(5,95,100,.09)}
+.kicker,header p,.panel p{color:#3d6065;font-weight:750}
+h1{background:linear-gradient(110deg,#10272b,#60777b 31%,#0a252a 50%,#7e9295 70%,#10272b);-webkit-background-clip:text}
+h1 span{background:linear-gradient(110deg,#006d78,#00bacc 34%,#006e78 52%,#00a980 72%,#087b6c);-webkit-background-clip:text}
+h2,h3,b,strong,label,.item h3,.history h3,.panel-heading h2{color:#092c31;font-weight:850}
+p,span,small,a,input,textarea,select,button{font-weight:700}
+.panel,.item,.calendar-summary,.history,.timer,.info div,.equipment-group,.trust-message,.warranty-card{color:#102b2f;border-color:rgba(0,157,166,.26);background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(238,249,248,.97));box-shadow:0 18px 45px rgba(12,83,87,.11),inset 0 1px 0 #fff}
+input,textarea,select{color:#092b30;background:#fff;border-color:rgba(0,132,142,.3);font-weight:750}
+input::placeholder,textarea::placeholder{color:#587176;opacity:1;font-weight:650}
+input:focus,textarea:focus,select:focus{background:#fff;border-color:#00aebe;box-shadow:0 0 0 4px rgba(0,190,205,.13)}
+.timer{background:linear-gradient(145deg,#f8ffff,#dff7f5)}.timer strong{color:#007d89;text-shadow:0 0 18px rgba(0,186,201,.18)}
+.history-entry span,.item p,.empty-group,.warranty-badge span,.trust-message span,.calendar-summary span,.booking-date,.date-time-grid label,.reschedule-box label{color:#385a5f}
+.stat-card{background:linear-gradient(145deg,#fff,#e7f6f5);border-color:rgba(0,156,165,.26)}.stat-card span{color:#365a60}.stat-card strong{color:#092d31}
+.appointment-hero{background:linear-gradient(145deg,#eaffff,#cff4ef);border-color:rgba(0,171,180,.35)}.appointment-hero strong{color:#07515a}
+.equipment-visual{background:radial-gradient(circle,rgba(0,207,199,.18),rgba(255,255,255,.4) 68%);border-color:rgba(0,166,174,.24)}
+.privacy-toolbar{color:#12383d;background:rgba(255,255,255,.88);border-color:rgba(0,164,172,.25)}
+.booking-priority{display:grid;gap:8px;margin-top:20px;padding:17px 18px;text-align:left;border:2px solid #00baa6;border-radius:13px;background:linear-gradient(135deg,#faffff,#dffaf4);box-shadow:0 0 24px rgba(0,203,180,.18)}
+.booking-priority b{color:#006d62;font-size:11px;letter-spacing:.1em}.booking-priority span{color:#173e42;font-size:12px;line-height:1.65;font-weight:750}
+@keyframes xeNeonPulse{0%,100%{border-color:#00b9c8;box-shadow:0 0 6px rgba(0,190,205,.35),0 0 14px rgba(0,225,190,.18),inset 0 0 7px rgba(255,255,255,.9)}50%{border-color:#00e6c2;box-shadow:0 0 14px rgba(0,200,215,.7),0 0 30px rgba(0,230,190,.48),inset 0 0 15px rgba(0,215,196,.12)}}
+.adminlink{display:inline-flex!important;align-items:center;justify-content:center;min-height:48px;margin:18px 5px 0!important;padding:12px 21px;color:#053e44!important;background:linear-gradient(135deg,#fff,#dffdf8);border:2px solid #00b9c8;border-radius:12px;text-decoration:none;font-size:11px!important;font-weight:900!important;letter-spacing:.09em;animation:xeNeonPulse 1.8s ease-in-out infinite}
+.adminlink:hover{color:#002c31!important;background:#fff;transform:translateY(-2px)}
+.public-links{gap:8px;padding:8px 0 20px}
+.financial-edit,.reschedule-box,.warranty-input,.return-policy,.equipment-group{color:#12373b;background:linear-gradient(145deg,#fbffff,#e8f8f6);border-color:rgba(0,157,166,.25)}
+.return-policy b{color:#006c61}.return-policy span{color:#365b5f}.return-policy strong{color:#07383b}
+.step{color:#587176}.step.done{color:#10383d;font-weight:850}.step i{background:#fff;border-color:rgba(0,155,165,.3)}
+.phone-value,.private-value,.backup-panel #backupMsg{color:#355b60}
+@media(prefers-reduced-motion:reduce){.adminlink{animation:none;box-shadow:0 0 14px rgba(0,190,205,.5)}}

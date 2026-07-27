@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{equipmentImageMarkup,bindEquipmentImageFallbacks}from"./equipment-images.js?v=20260727-4";
+import{equipmentImageMarkup,bindEquipmentImageFallbacks,addEquipmentReferenceInline}from"./equipment-images.js?v=20260727-7";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getFirestore,doc,onSnapshot}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 const app=initializeApp(firebaseConfig),db=getFirestore(app),$=id=>document.getElementById(id);let current,unsub;
@@ -9,7 +9,7 @@ function render(){$("msgCita").textContent="";$("resultadoCita").classList.remov
 $("pedirReagendar").onclick=()=>{if(!current)return;const m=`Hola, soy ${current.cliente}.\n\nFolio: ${current.id}\n\nMe gustaría solicitar reagendar mi cita.\n\nGracias.`;window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`,"_blank")};
 $("solicitarLlamada").onclick=()=>{if(!current)return;const m=`Hola, soy ${current.cliente}.\n\nFolio: ${current.id}\n\nMe gustaría comunicarme con el equipo de XE Servicio Electrónico. Cuando tengan oportunidad, ¿podrían llamarme por WhatsApp?\n\nGracias.`;window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`,"_blank")};
 $("descargarPdf").onclick=()=>generarPDF(current);
-function generarPDF(x){
+async function generarPDF(x){
  if(!x||!window.jspdf)return alert("No se pudo cargar el generador PDF.");
  const{jsPDF}=window.jspdf,p=new jsPDF(),azul=[14,67,116],plata=[137,151,166];
  p.setFillColor(247,249,251);p.rect(0,0,210,297,"F");p.setDrawColor(...azul);p.setLineWidth(1.2);p.roundedRect(8,8,194,281,3,3,"S");p.setDrawColor(...plata);p.setLineWidth(.35);p.roundedRect(11,11,188,275,2,2,"S");
@@ -21,7 +21,7 @@ function generarPDF(x){
  campo("Fecha",formatearFecha(x.fecha),18,145,85);campo("Hora",formatearHora(x.hora),107,145,85);
  p.setFillColor(255,255,255);p.setDrawColor(220,225,230);p.roundedRect(18,171,174,37,2,2,"FD");p.setTextColor(...azul);p.setFont("helvetica","bold");p.setFontSize(7);p.text("FALLA REPORTADA",23,179);p.setTextColor(45,48,52);p.setFont("helvetica","normal");p.setFontSize(9);p.text(p.splitTextToSize(String(x.falla||"No especificada"),164).slice(0,4),23,187);
  p.setFillColor(...azul);p.roundedRect(18,216,174,24,3,3,"F");p.setTextColor(255,255,255);p.setFont("helvetica","bold");p.setFontSize(8);p.text("ESTADO DE LA CITA",26,226);p.setFontSize(13);p.text(String(x.estado||"Confirmada").toUpperCase(),184,231,{align:"right"});
- p.setDrawColor(...plata);p.line(18,270,192,270);p.setTextColor(38,42,46);p.setFont("helvetica","bold");p.setFontSize(9);p.text("XE SERVICIO ELECTRÓNICO",105,278,{align:"center"});p.setFont("helvetica","normal");p.setFontSize(8);p.text("EXPERTOS EN TECNOLOGÍA",105,284,{align:"center"});p.save(`Cita-${x.id}.pdf`)
+ p.setDrawColor(...plata);p.line(18,270,192,270);p.setTextColor(38,42,46);p.setFont("helvetica","bold");p.setFontSize(9);p.text("XE SERVICIO ELECTRÓNICO",105,278,{align:"center"});p.setFont("helvetica","normal");p.setFontSize(8);p.text("EXPERTOS EN TECNOLOGÍA",105,284,{align:"center"});await addEquipmentReferenceInline(p,x.equipo,x.modelo,155,16,37,32,true);p.save(`Cita-${x.id}.pdf`)
 }
 function formatearFecha(v){return v?new Date(v+"T12:00:00").toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long",year:"numeric"}):"Sin fecha"}function formatearHora(v){if(!v)return"Sin hora";const[h,m]=v.split(":");return new Date(2000,0,1,+h,+m).toLocaleTimeString("es-MX",{hour:"numeric",minute:"2-digit"})}function esc(s){return String(s||"").replace(/[&<>\"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 const f=new URLSearchParams(location.search).get("folio");if(f)watch(f.trim().toUpperCase());

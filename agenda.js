@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview}from"./equipment-images.js?v=20260727-4";
+import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview,addEquipmentReferenceInline}from"./equipment-images.js?v=20260727-7";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -66,7 +66,7 @@ function normalizar(v){let n=String(v||"").replace(/\D/g,"");if(n.startsWith("52
 function linkCita(id){return `${location.origin}${location.pathname.replace(/agenda\.html$/,"cita.html")}?folio=${encodeURIComponent(id)}`}
 function enviarCita(x){const n=normalizar(x.telefono);if(!n)return alert("WhatsApp inválido.");const m=`📅 *CITA CONFIRMADA - XE SERVICIO ELECTRÓNICO*\n\nHola ${x.cliente}.\n\n*Folio:* ${x.id}\n*Equipo:* ${x.equipo}\n*Fecha:* ${formatearFecha(x.fecha)}\n*Hora:* ${formatearHora(x.hora)}\n\nConsulta o descarga tu comprobante aquí:\n${linkCita(x.id)}\n\n*XE Servicio Electrónico*\nExpertos en Tecnología`;window.open(`https://wa.me/${n}?text=${encodeURIComponent(m)}`,"_blank")}
 function enviarPropuesta(x){const n=normalizar(x.telefono);if(!n)return alert("La cita se actualizó, pero el WhatsApp no es válido.");const m=`Hola, ${x.cliente}.\n\nTe proponemos reagendar tu cita con *XE Servicio Electrónico*.\n\n*Folio:* ${x.id}\n*Nueva fecha:* ${formatearFecha(x.fecha)}\n*Nueva hora:* ${formatearHora(x.hora)}\n\nPuedes consultar la cita actualizada aquí:\n${linkCita(x.id)}\n\nResponde este mensaje para confirmar o solicitar otra fecha.`;window.open(`https://wa.me/${n}?text=${encodeURIComponent(m)}`,"_blank")}
-function generarPDF(x){
+async function generarPDF(x){
  if(!x||!window.jspdf)return alert("No se pudo cargar el generador PDF.");
  const{jsPDF}=window.jspdf,p=new jsPDF(),azul=[14,67,116],plata=[137,151,166];
  p.setFillColor(247,249,251);p.rect(0,0,210,297,"F");p.setDrawColor(...azul);p.setLineWidth(1.2);p.roundedRect(8,8,194,281,3,3,"S");p.setDrawColor(...plata);p.setLineWidth(.35);p.roundedRect(11,11,188,275,2,2,"S");
@@ -78,7 +78,7 @@ function generarPDF(x){
  campo("Fecha",formatearFecha(x.fecha),18,145,85);campo("Hora",formatearHora(x.hora),107,145,85);
  p.setFillColor(255,255,255);p.setDrawColor(220,225,230);p.roundedRect(18,171,174,37,2,2,"FD");p.setTextColor(...azul);p.setFont("helvetica","bold");p.setFontSize(7);p.text("FALLA REPORTADA",23,179);p.setTextColor(45,48,52);p.setFont("helvetica","normal");p.setFontSize(9);p.text(p.splitTextToSize(String(x.falla||"No especificada"),164).slice(0,4),23,187);
  p.setFillColor(...azul);p.roundedRect(18,216,174,24,3,3,"F");p.setTextColor(255,255,255);p.setFont("helvetica","bold");p.setFontSize(8);p.text("ESTADO DE LA CITA",26,226);p.setFontSize(13);p.text(String(x.estado||"Confirmada").toUpperCase(),184,231,{align:"right"});
- p.setDrawColor(...plata);p.line(18,270,192,270);p.setTextColor(38,42,46);p.setFont("helvetica","bold");p.setFontSize(9);p.text("XE SERVICIO ELECTRÓNICO",105,278,{align:"center"});p.setFont("helvetica","normal");p.setFontSize(8);p.text("EXPERTOS EN TECNOLOGÍA",105,284,{align:"center"});p.save(`Cita-${x.id}.pdf`)
+ p.setDrawColor(...plata);p.line(18,270,192,270);p.setTextColor(38,42,46);p.setFont("helvetica","bold");p.setFontSize(9);p.text("XE SERVICIO ELECTRÓNICO",105,278,{align:"center"});p.setFont("helvetica","normal");p.setFontSize(8);p.text("EXPERTOS EN TECNOLOGÍA",105,284,{align:"center"});await addEquipmentReferenceInline(p,x.equipo,x.modelo,155,16,37,32,true);p.save(`Cita-${x.id}.pdf`)
 }
 function formatearFecha(v){if(!v)return"Sin fecha";return new Date(v+"T12:00:00").toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
 function formatearHora(v){if(!v)return"Sin hora";const[h,m]=v.split(":");return new Date(2000,0,1,+h,+m).toLocaleTimeString("es-MX",{hour:"numeric",minute:"2-digit"})}
