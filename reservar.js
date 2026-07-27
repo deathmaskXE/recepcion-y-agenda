@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{setupEquipmentPreview}from"./equipment-images.js?v=20260727-4";
+import{setupEquipmentPreview}from"./equipment-images.js?v=20260727-9";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getFirestore,collection,doc,getDocs,query,where,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 

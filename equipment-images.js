@@ -40,6 +40,16 @@ export const EQUIPMENT_IMAGE_CATALOG={
       {label:"Control Xbox Series",file:"xbox-series.png",terms:["control xbox series","mando xbox series","controller xbox series"]},
       {label:"Control Xbox One",file:"xbox-one.png",terms:["control xbox one","mando xbox one","controller xbox one"]}
     ]
+  },
+  screens:{
+    label:"Pantalla",
+    detectTerms:["pantalla","televisor","television","tv","smart tv"],
+    basePath:"./assets/pantallas/",
+    fallback:"pantalla.png",
+    freeModel:true,
+    items:[
+      {label:"Pantalla / TV",file:"pantalla.png",terms:["pantalla","televisor","television","tv","smart tv"]}
+    ]
   }
 };
 
@@ -99,7 +109,10 @@ export async function addEquipmentReferenceInline(pdf,equipo,modelo,x,y,w,h,dark
 }
 
 function categoryKeyFromSelect(value){
-  return normalize(value)==="control"?"controllers":"consoles";
+  const selected=normalize(value);
+  return Object.entries(EQUIPMENT_IMAGE_CATALOG).find(([,category])=>normalize(category.label)===selected)?.[0]
+    ||Object.entries(EQUIPMENT_IMAGE_CATALOG).find(([,category])=>category.default)?.[0]
+    ||Object.keys(EQUIPMENT_IMAGE_CATALOG)[0];
 }
 
 function fillModelSelect(categorySelect,modelSelect,selected=""){
@@ -120,11 +133,18 @@ function fillModelSelect(categorySelect,modelSelect,selected=""){
 }
 
 export function setEquipmentFormValues(equipoId,modeloId,equipoValue,modeloValue){
-  const equipo=document.getElementById(equipoId),modelo=document.getElementById(modeloId);
-  if(!equipo||!modelo)return;
+  const equipo=document.getElementById(equipoId);
+  if(!equipo||!document.getElementById(modeloId))return;
   const categoryKey=detectCategory(equipoValue,modeloValue),resolved=resolveEquipmentImage(equipoValue,modeloValue);
-  equipo.value=categoryKey==="controllers"?"Control":"Consola";
-  fillModelSelect(equipo,modelo,resolved.isFallback?(modeloValue||""):resolved.label);
+  equipo.value=EQUIPMENT_IMAGE_CATALOG[categoryKey].label;
+  equipo.dispatchEvent(new Event("change",{bubbles:true}));
+  const modelo=document.getElementById(modeloId);
+  if(!modelo)return;
+  if(EQUIPMENT_IMAGE_CATALOG[categoryKey].freeModel){
+    modelo.value=modeloValue||"";
+  }else{
+    fillModelSelect(equipo,modelo,resolved.isFallback?(modeloValue||""):resolved.label);
+  }
   modelo.dispatchEvent(new Event("change",{bubbles:true}));
 }
 
@@ -132,14 +152,32 @@ export function setupEquipmentPreview(equipoId,modeloId,containerId){
   const originalEquipo=document.getElementById(equipoId),originalModelo=document.getElementById(modeloId),container=document.getElementById(containerId);
   if(!originalEquipo||!originalModelo||!container)return;
   const initialEquipo=originalEquipo.value,initialModelo=originalModelo.value;
-  const equipo=document.createElement("select"),modelo=document.createElement("select");
-  equipo.id=equipoId;equipo.innerHTML='<option value="">1. Escoge consola o control</option><option value="Consola">Consola</option><option value="Control">Control</option>';
+  const equipo=document.createElement("select");
+  let modelo=document.createElement("select");
+  equipo.id=equipoId;
+  equipo.innerHTML='<option value="">1. Escoge el tipo de equipo</option>';
+  Object.values(EQUIPMENT_IMAGE_CATALOG).forEach(category=>{
+    const option=document.createElement("option");option.value=category.label;option.textContent=category.label;equipo.appendChild(option);
+  });
   modelo.id=modeloId;
   originalEquipo.replaceWith(equipo);
   originalModelo.replaceWith(modelo);
-  fillModelSelect(equipo,modelo);
   const render=()=>{if(!equipo.value||!modelo.value){container.innerHTML="";return}container.innerHTML=equipmentImageMarkup(equipo.value,modelo.value);bindEquipmentImageFallbacks(container)};
-  equipo.addEventListener("change",()=>{fillModelSelect(equipo,modelo);render()});
-  modelo.addEventListener("change",render);
+  const configureModel=(selected="")=>{
+    const categoryKey=equipo.value?categoryKeyFromSelect(equipo.value):null;
+    const category=categoryKey?EQUIPMENT_IMAGE_CATALOG[categoryKey]:null;
+    const next=document.createElement(category?.freeModel?"input":"select");
+    next.id=modeloId;
+    if(category?.freeModel){
+      next.type="text";next.placeholder="2. Escribe la marca y modelo (LG, Sony, etc.)";next.value=selected;
+      next.addEventListener("input",render);
+    }else{
+      fillModelSelect(equipo,next,selected);
+    }
+    next.addEventListener("change",render);
+    modelo.replaceWith(next);modelo=next;
+  };
+  equipo.addEventListener("change",()=>{configureModel();render()});
+  configureModel();
   if(initialEquipo||initialModelo)setEquipmentFormValues(equipoId,modeloId,initialEquipo,initialModelo);else render();
 }

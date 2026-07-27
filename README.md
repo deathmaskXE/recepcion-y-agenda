@@ -77,6 +77,14 @@ Modelos adicionales registrados:
 
 La correspondencia central y los fallbacks están en `equipment-images.js`, dentro de `EQUIPMENT_IMAGE_CATALOG`. Un modelo desconocido usa la imagen genérica de su categoría. Si incluso esa imagen no puede cargarse, el área visual se oculta sin mostrar el antiguo placeholder XE.
 
+### Imagen genérica para pantallas
+
+La categoría `Pantalla` acepta cualquier marca o modelo escrito (LG, Sony, Samsung, etc.) y siempre utiliza la misma ruta relativa:
+
+`assets/pantallas/pantalla.png`
+
+Copia manualmente tu imagen a esa carpeta con el nombre exacto `pantalla.png`. GitHub Pages distingue mayúsculas y minúsculas.
+
 ### Agregar imágenes en el futuro
 
 1. Copia la imagen, respetando mayúsculas y minúsculas, a `assets/consolas/` o `assets/controles/`.
