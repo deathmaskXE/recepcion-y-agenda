@@ -592,11 +592,6 @@ function pdfBullets(p,items,x,y,w,lineHeight=4.6){
   });
   return yy;
 }
-function pdfSignature(p,x,y,w,label){
-  p.setDrawColor(90,95,100);p.setLineWidth(.22);p.line(x,y,x+w,y);
-  p.setTextColor(10,12,14);p.setFont("helvetica","bold");p.setFontSize(6.5);p.text(label,x+w/2,y+5,{align:"center"});
-  p.setFont("helvetica","normal");p.setFontSize(5.8);p.text("Nombre y firma",x+w/2,y+10,{align:"center"});
-}
 function pdfMarcadorFisico(texto,termino){
   return normalizarTextoEquipo(texto).includes(normalizarTextoEquipo(termino));
 }
@@ -632,7 +627,7 @@ async function generarPDFRecepcion(x){
     pdfNotaSection(p,5,"NOTAS",99,167,103,31);
     pdfLongText(p,[x.nota,x.accesorios?`Accesorios: ${x.accesorios}`:""].filter(Boolean).join("\n"),104,183,91,3,7);
 
-    pdfNotaSection(p,6,"CONDICIONES DEL SERVICIO",8,198,194,52);
+    pdfNotaSection(p,6,"CONDICIONES DEL SERVICIO",8,198,194,83);
     pdfBullets(p,[
       "El diagnóstico puede cambiar el presupuesto inicial.",
       "El cliente autoriza pruebas y procedimientos necesarios para el diagnóstico y/o reparación.",
@@ -643,8 +638,6 @@ async function generarPDFRecepcion(x){
     p.setTextColor(0,135,190);p.setFont("helvetica","bolditalic");p.setFontSize(6.5);
     p.text(p.splitTextToSize("Transcurrido dicho plazo sin ser recogido, el equipo podrá ser vendido o el taller podrá disponer de él de la manera que convenga, sin excepción.",174).slice(0,2),15,240);
 
-    pdfNotaSection(p,7,"ACEPTACIÓN",8,250,194,31);
-    pdfSignature(p,20,267,44,"Cliente");pdfSignature(p,83,267,44,"Recepcionista");pdfSignature(p,150,267,44,"Técnico");
     pdfNotaFooter(p);
     p.save(`Nota-Recepcion-${folio}.pdf`);
   }catch(e){console.error(e);alert("No se pudo crear la Nota de Recepción: "+e.message)}
@@ -794,7 +787,7 @@ async function generarPDFEntrega(x){
     p.text(`Ingreso: ${fechaLarga(fechaCaptura)}     Entrega: ${fechaLarga(fechaEntrega)}`,14,194);
     p.text(`Total: ${moneda(total)}     Anticipo: ${moneda(anticipo)}     Pago final: ${moneda(pagoFinal)}`,14,202);
 
-    pdfNotaSection(p,4,"GARANTÍA",8,207,194,45);
+    pdfNotaSection(p,4,"GARANTÍA",8,207,194,74);
     const garantiaTexto=x.garantiaHasta?`${x.garantiaTiempo||0} ${x.garantiaUnidad||"días"}`:"Sin garantía registrada";
     const vence=x.garantiaHasta?new Date(x.garantiaHasta).toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"}):"No registrada";
     pdfBullets(p,[
@@ -804,11 +797,6 @@ async function generarPDFEntrega(x){
       "El cliente debe revisar el equipo al momento de la entrega y reportar cualquier inconformidad de inmediato."
     ],14,223,177,4.4);
 
-    pdfNotaSection(p,5,"CONFIRMACIÓN DEL CLIENTE",8,252,194,29);
-    p.setTextColor(20,24,28);p.setFont("helvetica","normal");p.setFontSize(7);
-    p.text(p.splitTextToSize("Declaro haber recibido mi equipo funcionando conforme a las pruebas realizadas y en las condiciones descritas en esta nota.",170).slice(0,2),14,264);
-    pdfSignature(p,35,270,48,"Cliente");
-    pdfSignature(p,128,270,48,"Técnico");
     pdfNotaFooter(p);
     p.save(`Nota-Entrega-${folioPDF(x)}.pdf`);
   }catch(e){console.error(e);alert("No se pudo crear la Nota de Entrega: "+e.message)}
