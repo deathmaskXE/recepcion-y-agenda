@@ -1,0 +1,8 @@
+Coloca aqui la imagen del Nintendo Joy-Con 2 con el nombre exacto:
+
+joycon-2.png
+
+Ruta final:
+assets/controles/joycon-2.png
+
+GitHub Pages distingue mayusculas y minusculas.

@@ -8,6 +8,7 @@
 
 /* FASES 2 Y 3 */
 .financial-edit{display:grid;grid-template-columns:150px 150px 1fr auto;gap:8px;margin-top:10px;padding:12px;background:#050c10;border:1px solid rgba(255,183,76,.18)}
+.private-money{letter-spacing:.18em;text-align:center;color:#355b60!important;-webkit-text-security:disc}
 .financial-edit textarea{min-height:44px}.pdf-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.pdf-actions button:first-child{background:linear-gradient(135deg,#720b17,#c33242)}.pdf-actions button:last-child{background:linear-gradient(135deg,#17130a,#b18423);color:#fff4ce}.call-request{width:100%;margin-top:8px;background:linear-gradient(135deg,#075f36,#20b76b)}.trust-message{margin-top:18px;padding:18px;text-align:center;border:1px solid rgba(80,220,242,.16);background:linear-gradient(145deg,#061116,#03090c)}.trust-message b{display:block;color:var(--ice);font-size:13px}.trust-message span{display:block;color:var(--muted);font-size:10px;margin-top:7px}@media(max-width:760px){.financial-edit{grid-template-columns:1fr}}
 
 

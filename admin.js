@@ -32,7 +32,7 @@ $("loginBtn").onclick=async()=>{
 };
 
 $("logout").onclick=()=>signOut(auth);
-$("toggleIngresos").onclick=()=>{mostrarIngresos=!mostrarIngresos;$("toggleIngresos").textContent=mostrarIngresos?"OCULTAR INGRESOS":"MOSTRAR INGRESOS";$("toggleIngresos").setAttribute("aria-pressed",String(mostrarIngresos));renderStats()};
+$("toggleIngresos").onclick=()=>{mostrarIngresos=!mostrarIngresos;$("toggleIngresos").textContent=mostrarIngresos?"OCULTAR INGRESOS":"MOSTRAR INGRESOS";$("toggleIngresos").setAttribute("aria-pressed",String(mostrarIngresos));renderStats();render()};
 $("toggleTelefonos").onclick=()=>{mostrarTelefonos=!mostrarTelefonos;$("toggleTelefonos").textContent=mostrarTelefonos?"OCULTAR TELÉFONOS":"MOSTRAR TELÉFONOS";$("toggleTelefonos").setAttribute("aria-pressed",String(mostrarTelefonos));render()};
 onAuthStateChanged(auth,u=>{
   $("login").classList.toggle("hidden",!!u);
@@ -290,8 +290,11 @@ $("exportCsv").onclick=()=>{
 function render(){
   const f=$("filter").value.toLowerCase();
   const arr=all.filter(x=>(x.id+" "+x.cliente+" "+x.equipo).toLowerCase().includes(f));
+  const inputImporte=(tipo,id,valor,placeholder)=>mostrarIngresos
+    ?`<input type="number" min="0" step="0.01" data-${tipo}="${id}" value="${Number(valor||0)}" placeholder="${placeholder}">`
+    :`<input type="password" class="private-money" data-${tipo}="${id}" value="••••••" placeholder="${placeholder}" readonly aria-label="${placeholder} oculto">`;
 
-  const tarjeta=x=>{const g=garantiaInfo(x);const historial=(x.historial||[]).slice().reverse();const clase=x.estado==="Entregado"?"item-entregado":x.estado==="Devolución"?"item-devolucion":"item-taller";const telefono=mostrarTelefonos?esc(x.telefono||"Sin número"):"••• ••• ••••";return `<div class="item ${clase}">${equipmentImageMarkup(x.equipo,x.modelo,true)}<div class="itemtop"><div><h3>${x.id} · ${esc(x.equipo)}</h3><p>${esc(x.cliente)} · ${esc(x.falla||"Sin falla reportada")}</p><p>WhatsApp: <span class="phone-value">${telefono}</span></p><div class="warranty-badge ${g.clase}"><b>${g.texto}</b><span>${g.detalle}</span></div></div><b>${x.estado}</b></div><div class="controls"><select data-state="${x.id}">${states.map(s=>`<option ${s===x.estado?"selected":""}>${s}</option>`).join("")}</select><textarea data-note="${x.id}" placeholder="Nueva actualización visible para el cliente">${esc(x.nota||"")}</textarea><button data-save="${x.id}">GUARDAR Y AVISAR</button></div><div class="financial-edit"><input type="number" min="0" step="0.01" data-anticipo="${x.id}" value="${Number(x.anticipo||0)}" placeholder="Anticipo"><input type="number" min="0" step="0.01" data-total="${x.id}" value="${Number(x.costoTotal||0)}" placeholder="Costo total"><textarea data-reparacion="${x.id}" placeholder="Reparación realizada para el PDF de entrega">${esc(x.reparacionRealizada||"")}</textarea><button data-finanzas="${x.id}">GUARDAR IMPORTES</button></div><div class="pdf-actions"><button data-pdf-recepcion="${x.id}">PDF RECEPCIÓN Y ANTICIPO</button><button data-pdf-entrega="${x.id}">NOTA DE ENTREGA Y PAGO</button></div><label class="notify-check"><input type="checkbox" data-notify="${x.id}" checked> Abrir WhatsApp con el aviso después de guardar</label><details class="admin-history"><summary>HISTORIAL (${historial.length})</summary><div>${historial.map(h=>`<div class="history-entry"><small>${new Date(h.fecha).toLocaleString("es-MX")}</small><b>${esc(h.estado||"")}</b><span>${esc(h.nota||"Sin nota")}</span></div>`).join("")||"<p>Sin historial.</p>"}</div></details></div>`};
+  const tarjeta=x=>{const g=garantiaInfo(x);const historial=(x.historial||[]).slice().reverse();const clase=x.estado==="Entregado"?"item-entregado":x.estado==="Devolución"?"item-devolucion":"item-taller";const telefono=mostrarTelefonos?esc(x.telefono||"Sin número"):"••• ••• ••••";return `<div class="item ${clase}">${equipmentImageMarkup(x.equipo,x.modelo,true)}<div class="itemtop"><div><h3>${x.id} · ${esc(x.equipo)}</h3><p>${esc(x.cliente)} · ${esc(x.falla||"Sin falla reportada")}</p><p>WhatsApp: <span class="phone-value">${telefono}</span></p><div class="warranty-badge ${g.clase}"><b>${g.texto}</b><span>${g.detalle}</span></div></div><b>${x.estado}</b></div><div class="controls"><select data-state="${x.id}">${states.map(s=>`<option ${s===x.estado?"selected":""}>${s}</option>`).join("")}</select><textarea data-note="${x.id}" placeholder="Nueva actualización visible para el cliente">${esc(x.nota||"")}</textarea><button data-save="${x.id}">GUARDAR Y AVISAR</button></div><div class="financial-edit">${inputImporte("anticipo",x.id,x.anticipo,"Anticipo")}${inputImporte("total",x.id,x.costoTotal,"Costo total")}<textarea data-reparacion="${x.id}" placeholder="Reparación realizada para el PDF de entrega">${esc(x.reparacionRealizada||"")}</textarea><button data-finanzas="${x.id}">GUARDAR IMPORTES</button></div><div class="pdf-actions"><button data-pdf-recepcion="${x.id}">PDF RECEPCIÓN Y ANTICIPO</button><button data-pdf-entrega="${x.id}">NOTA DE ENTREGA Y PAGO</button></div><label class="notify-check"><input type="checkbox" data-notify="${x.id}" checked> Abrir WhatsApp con el aviso después de guardar</label><details class="admin-history"><summary>HISTORIAL (${historial.length})</summary><div>${historial.map(h=>`<div class="history-entry"><small>${new Date(h.fecha).toLocaleString("es-MX")}</small><b>${esc(h.estado||"")}</b><span>${esc(h.nota||"Sin nota")}</span></div>`).join("")||"<p>Sin historial.</p>"}</div></details></div>`};
 
   const bloque=(titulo,clase,datos,vacio)=>`<section class="equipment-group ${clase}"><div class="equipment-group-title"><h3>${titulo}</h3><span>${datos.length}</span></div>${datos.length?datos.map(tarjeta).join(""):`<p class="empty-group">${vacio}</p>`}</section>`;
   const secciones=datos=>{
@@ -316,8 +319,9 @@ function render(){
 
   document.querySelectorAll("[data-finanzas]").forEach(b=>b.onclick=async()=>{
     const id=b.dataset.finanzas;
-    const anticipo=Math.max(0,Number(document.querySelector(`[data-anticipo="${id}"]`).value)||0);
-    const costoTotal=Math.max(0,Number(document.querySelector(`[data-total="${id}"]`).value)||0);
+    const old=all.find(x=>x.id===id)||{};
+    const anticipo=mostrarIngresos?Math.max(0,Number(document.querySelector(`[data-anticipo="${id}"]`).value)||0):Number(old.anticipo)||0;
+    const costoTotal=mostrarIngresos?Math.max(0,Number(document.querySelector(`[data-total="${id}"]`).value)||0):Number(old.costoTotal)||0;
     const reparacionRealizada=document.querySelector(`[data-reparacion="${id}"]`).value.trim();
     try{await updateDoc(doc(db,"equipos",id),{anticipo,costoTotal,reparacionRealizada});alert("Importes y reparación guardados.")}catch(e){alert("No se pudieron guardar: "+(e.code||e.message))}
   });
