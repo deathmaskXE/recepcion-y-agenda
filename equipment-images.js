@@ -35,6 +35,7 @@ export const EQUIPMENT_IMAGE_CATALOG={
       {label:"DualSense",file:"dualsense.png",terms:["dualsense","control ps5","mando ps5"]},
       {label:"DualShock 4",file:"dualshock-4.png",terms:["dualshock 4","control ps4","mando ps4"]},
       {label:"Xbox Elite Series 2",file:"elite-series-2.png",terms:["elite series 2","xbox elite 2"]},
+      {label:"Nintendo Joy-Con 2",file:"joycon-2.png",terms:["joy con 2","joycon 2","joy-con 2","nintendo joy con 2","nintendo joycon 2"]},
       {label:"Nintendo Joy-Con",file:"joycon.png",terms:["joy con","joycon"]},
       {label:"Nintendo Switch Pro Controller",file:"pro-controller.png",terms:["pro controller","control pro switch","mando pro switch"]},
       {label:"Control Xbox Series",file:"xbox-series.png",terms:["control xbox series","mando xbox series","controller xbox series"]},

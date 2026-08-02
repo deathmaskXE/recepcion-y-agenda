@@ -1,5 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
-import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview,addEquipmentReferenceInline}from"./equipment-images.js?v=20260727-9";
+import{equipmentImageMarkup,bindEquipmentImageFallbacks,setupEquipmentPreview,addEquipmentReferenceInline}from"./equipment-images.js?v=20260801-2";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
