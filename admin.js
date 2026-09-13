@@ -37,8 +37,18 @@ $("toggleTelefonos").onclick=()=>{mostrarTelefonos=!mostrarTelefonos;$("toggleTe
 onAuthStateChanged(auth,u=>{
   $("login").classList.toggle("hidden",!!u);
   $("dashboard").classList.toggle("hidden",!u);
-  if(u)listen();
+  if(u){asegurarPanelGanancias();listen()}
 });
+
+function asegurarPanelGanancias(){
+  if($("monthlyIncome"))return;
+  const panel=document.createElement("section");
+  panel.className="panel monthly-income-panel";
+  panel.innerHTML=`<div class="head"><div><h2>GANANCIAS MES POR MES</h2><p>Incluye reparaciones entregadas y cobros de devoluci\u00f3n.</p></div></div><div class="income-table-wrap"><table class="income-table"><thead><tr><th>Mes</th><th>Entregados</th><th>Devueltos</th><th>Ingresos</th></tr></thead><tbody id="monthlyIncome"></tbody></table></div><small>Las devoluciones usan $200 MXN por equipo o $50 MXN por control; puedes modificar el importe en cada expediente.</small>`;
+  const panels=$("dashboard").querySelectorAll(".panel");
+  const lista=[...panels].find(x=>x.querySelector("#list"));
+  $("dashboard").insertBefore(panel,lista||null);
+}
 
 $("crear").onclick=async()=>{
   try{
@@ -197,6 +207,38 @@ function esMesActual(v){
   return !!fecha&&fecha.getFullYear()===hoy.getFullYear()&&fecha.getMonth()===hoy.getMonth();
 }
 
+function esControl(x){
+  return normalizarTextoEquipo(`${x.equipo||""} ${x.modelo||""}`).includes("control");
+}
+
+function tarifaDevolucionSugerida(x){return esControl(x)?50:200}
+function ingresoExpediente(x){
+  if(x.estado==="Entregado")return Math.max(0,Number(x.costoTotal)||0);
+  if(x.estado==="DevoluciÃ³n")return Math.max(0,Number(x.importeDevolucion??tarifaDevolucionSugerida(x))||0);
+  return 0;
+}
+function fechaIngreso(x){return x.estado==="Entregado"?x.entregado:x.estado==="DevoluciÃ³n"?x.devolucion:null}
+function claveMesFecha(v){
+  const fecha=valorFecha(v);
+  return fecha?`${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,"0")}`:null;
+}
+function renderGananciasMensuales(){
+  const contenedor=$("monthlyIncome");
+  if(!contenedor)return;
+  const meses=new Map();
+  all.forEach(x=>{
+    const fecha=valorFecha(fechaIngreso(x));
+    if(!fecha)return;
+    const clave=claveMesFecha(fecha);
+    if(!meses.has(clave))meses.set(clave,{fecha,entregas:0,devoluciones:0,ingresos:0});
+    const mes=meses.get(clave);
+    if(x.estado==="Entregado")mes.entregas++;else mes.devoluciones++;
+    mes.ingresos+=ingresoExpediente(x);
+  });
+  const filas=[...meses.entries()].sort(([a],[b])=>b.localeCompare(a));
+  contenedor.innerHTML=filas.length?filas.map(([,m])=>`<tr><td>${m.fecha.toLocaleDateString("es-MX",{month:"long",year:"numeric"})}</td><td>${m.entregas}</td><td>${m.devoluciones}</td><td class="monthly-money">${mostrarIngresos?moneda(m.ingresos):"â€¢â€¢â€¢â€¢â€¢â€¢"}</td></tr>`).join(""):`<tr><td colspan="4">AÃºn no hay ingresos finalizados.</td></tr>`;
+}
+
 function claveMesEquipo(x){
   const fecha=valorFecha(x.recibido)||valorFecha(x.creada);
   if(!fecha)return"sin-fecha";
@@ -210,14 +252,16 @@ function nombreMesEquipo(x){
 
 function renderStats(){
   const entregadosMes=all.filter(x=>x.estado==="Entregado"&&esMesActual(x.entregado));
+  const devueltosMes=all.filter(x=>x.estado==="DevoluciÃ³n"&&esMesActual(x.devolucion));
   $("statTaller").textContent=all.filter(x=>x.estado!=="Entregado"&&x.estado!=="Devolución").length;
   $("statEntregados").textContent=entregadosMes.length;
   $("statDevueltos").textContent=all.filter(x=>x.estado==="Devolución").length;
   $("statAutorizacion").textContent=all.filter(x=>x.estado==="Esperando autorización").length;
   $("statTotal").textContent=all.length;
-  const ingresos=moneda(entregadosMes.reduce((suma,x)=>suma+(Number(x.costoTotal)||0),0));
+  const ingresos=moneda([...entregadosMes,...devueltosMes].reduce((suma,x)=>suma+ingresoExpediente(x),0));
   $("statIngresos").textContent=mostrarIngresos?ingresos:"••••••";
   $("statIngresos").classList.toggle("revealed",mostrarIngresos);
+  renderGananciasMensuales();
 }
 
 function serializarFirestore(valor){
@@ -287,6 +331,42 @@ $("exportCsv").onclick=()=>{
   $("backupMsg").textContent=`CSV exportado correctamente: ${filas.length} expediente${filas.length===1?"":"s"}.`;
 };
 
+function editorExpediente(x){
+  const campo=(nombre,placeholder,tipo="input")=>tipo==="textarea"
+    ?`<textarea data-field="${nombre}" data-id="${x.id}" placeholder="${placeholder}">${esc(x[nombre]||"")}</textarea>`
+    :`<input data-field="${nombre}" data-id="${x.id}" value="${esc(x[nombre]||"")}" placeholder="${placeholder}">`;
+  return `<details class="record-edit"><summary>MODIFICAR DATOS DEL EQUIPO Y GARANTÃA</summary><div class="record-edit-grid">${campo("cliente","Cliente")}${campo("telefono","WhatsApp")}${campo("correo","Correo")}${campo("equipo","Equipo")}${campo("modelo","Modelo")}${campo("marca","Marca")}${campo("serie","Serie")}${campo("color","Color")}${campo("falla","Falla reportada","textarea")}${campo("accesorios","Accesorios","textarea")}${campo("observaciones","Observaciones fÃ­sicas","textarea")}<div class="warranty-editor"><label>GARANTÃA</label><input type="number" min="0" data-warranty-time="${x.id}" value="${Number(x.garantiaTiempo)||0}"><select data-warranty-unit="${x.id}"><option value="dias" ${x.garantiaUnidad!=="meses"?"selected":""}>DÃ­as</option><option value="meses" ${x.garantiaUnidad==="meses"?"selected":""}>Meses</option></select></div><button data-details="${x.id}">GUARDAR DATOS Y GARANTÃA</button></div></details>`;
+}
+
+function agregarEditoresExpediente(){
+  document.querySelectorAll("[data-save]").forEach(boton=>{
+    const id=boton.dataset.save,x=all.find(item=>item.id===id),tarjeta=boton.closest(".item");
+    if(!x||!tarjeta)return;
+    const finanzas=tarjeta.querySelector(".financial-edit");
+    if(x.estado==="Devoluci\u00f3n"&&finanzas){
+      const campo=document.createElement("input");
+      campo.type=mostrarIngresos?"number":"password";campo.dataset.devolucion=id;
+      campo.placeholder="Ingreso por devoluci\u00f3n";campo.setAttribute("aria-label","Ingreso por devoluci\u00f3n");
+      if(mostrarIngresos){campo.min="0";campo.step="0.01";campo.value=String(x.importeDevolucion??tarifaDevolucionSugerida(x));campo.onchange=async()=>{await updateDoc(doc(db,"equipos",id),{importeDevolucion:Math.max(0,Number(campo.value)||0)})}}
+      else{campo.className="private-money";campo.value="\u2022\u2022\u2022\u2022\u2022\u2022";campo.readOnly=true}
+      finanzas.insertBefore(campo,finanzas.querySelector("textarea"));
+    }
+    const pdf=tarjeta.querySelector(".pdf-actions"),envoltura=document.createElement("div");
+    envoltura.innerHTML=editorExpediente(x);if(pdf)pdf.before(envoltura.firstElementChild);
+  });
+  document.querySelectorAll("[data-details]").forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.details,old=all.find(x=>x.id===id),datos={};if(!old)return;
+    document.querySelectorAll(`[data-field][data-id="${id}"]`).forEach(campo=>datos[campo.dataset.field]=campo.value.trim());
+    if(!datos.cliente||!datos.equipo||!datos.telefono)return alert("Cliente, WhatsApp y equipo son obligatorios.");
+    datos.garantiaTiempo=Math.max(0,Number(document.querySelector(`[data-warranty-time="${id}"]`).value)||0);
+    datos.garantiaUnidad=document.querySelector(`[data-warranty-unit="${id}"]`).value;
+    datos.garantiaHasta=old.entregado?calcularGarantiaHasta(old.entregado,datos.garantiaTiempo,datos.garantiaUnidad):null;
+    const publicos={cliente:datos.cliente,equipo:datos.equipo,modelo:datos.modelo,garantiaTiempo:datos.garantiaTiempo,garantiaUnidad:datos.garantiaUnidad,garantiaHasta:datos.garantiaHasta};
+    try{b.disabled=true;await Promise.all([updateDoc(doc(db,"equipos",id),datos),updateDoc(doc(db,"estados_publicos",id),publicos)]);alert("Datos del equipo y garant\u00eda actualizados.")}
+    catch(e){alert("No se pudieron actualizar los datos: "+(e.code||e.message))}finally{b.disabled=false}
+  });
+}
+
 function render(){
   const f=$("filter").value.toLowerCase();
   const arr=all.filter(x=>(x.id+" "+x.cliente+" "+x.equipo).toLowerCase().includes(f));
@@ -316,6 +396,7 @@ function render(){
   const archivos=[...mesesAnteriores.entries()].sort(([a],[b])=>b.localeCompare(a)).map(([clave,datos])=>`<details class="month-archive"${f?" open":""}><summary><span>${nombreMesEquipo(datos[0]).toUpperCase()}</span><b>${datos.length} EQUIPO${datos.length===1?"":"S"}</b></summary><div class="month-archive-content">${secciones(datos)}</div></details>`).join("");
   $("list").innerHTML=`<section class="current-month"><div class="monthly-heading"><div><small>MES ACTUAL</small><h3>${hoy.toLocaleDateString("es-MX",{month:"long",year:"numeric"}).toUpperCase()}</h3></div><b>${actuales.length} EQUIPO${actuales.length===1?"":"S"}</b></div>${secciones(actuales)}</section>${archivos?`<div class="archive-heading"><small>ARCHIVO POR FECHA DE RECEPCIÓN</small><h3>MESES ANTERIORES</h3></div>${archivos}`:""}`;
   bindEquipmentImageFallbacks($("list"));
+  agregarEditoresExpediente();
 
   document.querySelectorAll("[data-finanzas]").forEach(b=>b.onclick=async()=>{
     const id=b.dataset.finanzas;
@@ -346,6 +427,7 @@ function render(){
       upd.garantiaHasta=old.garantiaHasta||calcularGarantiaHasta(upd.entregado,old.garantiaTiempo,old.garantiaUnidad);
     }else if(estado==="Devolución"){
       upd.devolucion=old.devolucion||ahora;
+      upd.importeDevolucion=old.importeDevolucion??tarifaDevolucionSugerida(old);
       upd.entregado=null;
       upd.garantiaHasta=null;
     }else if(old.estado==="Entregado"||old.estado==="Devolución"){
