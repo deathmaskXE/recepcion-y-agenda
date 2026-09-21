@@ -38,6 +38,7 @@ export const EQUIPMENT_IMAGE_CATALOG={
       {label:"Nintendo Joy-Con 2",file:"joycon-2.png",terms:["joy con 2","joycon 2","joy-con 2","nintendo joy con 2","nintendo joycon 2"]},
       {label:"Nintendo Joy-Con",file:"joycon.png",terms:["joy con","joycon"]},
       {label:"Nintendo Switch Pro Controller",file:"pro-controller.png",terms:["pro controller","control pro switch","mando pro switch"]},
+      {label:"Control Xbox 360",file:"xbox-360.png",terms:["control xbox 360","mando xbox 360","controller xbox 360","xbox 360"]},
       {label:"Control Xbox Series",file:"xbox-series.png",terms:["control xbox series","mando xbox series","controller xbox series"]},
       {label:"Control Xbox One",file:"xbox-one.png",terms:["control xbox one","mando xbox one","controller xbox one"]}
     ]

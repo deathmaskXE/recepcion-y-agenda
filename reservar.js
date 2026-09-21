@@ -1,4 +1,5 @@
 import {firebaseConfig} from "./firebase-config.js";
+import "./ui-enhancements.js?v=20260921-1";
 import{setupEquipmentPreview}from"./equipment-images.js?v=20260801-2";
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import{getFirestore,collection,doc,getDocs,query,where,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -9,18 +10,25 @@ let horaElegida="";
 setupEquipmentPreview("equipo","modelo","bookingEquipmentPreview");
 
 function hoyISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
+function sumarDiasISO(dias){const d=new Date();d.setDate(d.getDate()+dias);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 $("fechaReserva").min=hoyISO();
+$("fechaReserva").max=sumarDiasISO(90);
+$("fechaReserva").value=hoyISO();
 function horaBonita(v){const[h,m]=v.split(":");return new Date(2000,0,1,+h,+m).toLocaleTimeString("es-MX",{hour:"numeric",minute:"2-digit"})}
 function fechaBonita(v){return new Date(v+"T12:00:00").toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"})}
 
 async function horariosOcupados(fecha){
-  const [confirmadas,pendientes]=await Promise.all([
+  const resultados=await Promise.allSettled([
     getDocs(query(collection(db,"citas_publicas"),where("fecha","==",fecha))),
     getDocs(query(collection(db,"disponibilidad_citas"),where("fecha","==",fecha)))
   ]);
   const ocupados=new Set();
-  confirmadas.forEach(d=>{const x=d.data();if(x.estado!=="Cancelada"&&x.estado!=="Cliente recibido")ocupados.add(x.hora)});
-  pendientes.forEach(d=>ocupados.add(d.data().hora));
+  const confirmadas=resultados[0].status==="fulfilled"?resultados[0].value:null;
+  const pendientes=resultados[1].status==="fulfilled"?resultados[1].value:null;
+  if(confirmadas)confirmadas.forEach(d=>{const x=d.data();if(x.estado!=="Cancelada"&&x.estado!=="Cliente recibido")ocupados.add(x.hora)});
+  if(pendientes)pendientes.forEach(d=>ocupados.add(d.data().hora));
+  if(!confirmadas&&!pendientes)throw resultados[0].reason||resultados[1].reason||new Error("No se pudo consultar la agenda");
+  resultados.forEach(r=>{if(r.status==="rejected")console.warn("Consulta parcial de disponibilidad:",r.reason)});
   return ocupados;
 }
 
@@ -42,6 +50,7 @@ async function cargarHorarios(){
 
 $("fechaReserva").onchange=cargarHorarios;
 $("refreshSlots").onclick=cargarHorarios;
+cargarHorarios();
 $("solicitarCita").onclick=async()=>{
   const now=Date.now(),fecha=$("fechaReserva").value,hora=horaElegida;
   const d={cliente:$("cliente").value.trim(),telefono:$("telefono").value.trim(),equipo:$("equipo").value.trim(),modelo:$("modelo").value.trim(),falla:$("falla").value.trim(),fecha,hora,estado:"Pendiente de confirmación",creada:now,actualizada:now};

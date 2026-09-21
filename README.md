@@ -98,3 +98,11 @@ Copia manualmente tu imagen a esa carpeta con el nombre exacto `pantalla.png`. G
 No es necesario modificar las pantallas, la agenda ni la lógica de recepción. Para incorporar otra categoría o repositorio, agrega una categoría al mismo catálogo con `detectTerms`, `basePath`, `fallback` e `items`. La detección de categorías también se genera desde ese mapa.
 
 Los dos proyectos fuente incluían un `logo.png` idéntico. No se importó porque no es necesario para identificar equipos y así se evita conservar recursos duplicados.
+
+## Actualización de interfaz profesional
+
+- Logo XE integrado en las páginas y documentos PDF.
+- Nuevas imágenes de Control Xbox 360 y Nintendo Joy-Con 2.
+- Formularios reorganizados por secciones para capturar primero los datos esenciales.
+- Los campos de modelo, detalles técnicos, importes y garantía pueden omitirse y completarse después.
+- Agenda pública con carga automática de horarios y tolerancia a consultas parciales de disponibilidad.
