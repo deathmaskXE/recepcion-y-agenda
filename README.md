@@ -106,3 +106,4 @@ Los dos proyectos fuente incluían un `logo.png` idéntico. No se importó porqu
 - Formularios reorganizados por secciones para capturar primero los datos esenciales.
 - Los campos de modelo, detalles técnicos, importes y garantía pueden omitirse y completarse después.
 - Agenda pública con carga automática de horarios y tolerancia a consultas parciales de disponibilidad.
+- El aviso de WhatsApp para equipos entregados incluye el enlace de reseña de Google; los demás estados no lo muestran.

@@ -8,6 +8,7 @@ import{getFirestore,collection,doc,setDoc,updateDoc,deleteDoc,onSnapshot,query,o
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const $=id=>document.getElementById(id);
 const RECEPCION_PUBLIC_URL="https://deathmaskxe.github.io/recepcion-y-agenda/";
+const GOOGLE_REVIEW_URL="https://g.page/r/CdbjDcFNTEIoEBM/review";
 const states=["Recibido","En diagnóstico","Esperando autorización","En reparación","Esperando refacción","En pruebas","Terminado","Entregado","Devolución"];
 let all=[],ultimaRecepcion=null,mostrarIngresos=false,mostrarTelefonos=false;
 let citaOrigen=null;
@@ -465,6 +466,15 @@ function abrirAvisoWhatsApp(d,ventana){
   }
   const equipoTexto=equipoCompleto(d);
   const link=linkRecepcionPublica(d.id);
+  const invitacionResena=d.estado==="Entregado"?`
+
+⭐ *¿Quedaste satisfecho con nuestro servicio?*
+Tu opinión nos ayuda a seguir mejorando y permite que más personas conozcan nuestro trabajo.
+
+Puedes calificarnos en Google aquí:
+*${GOOGLE_REVIEW_URL}*
+
+¡Muchas gracias por confiar en nosotros!`:"";
   const mensaje=`🎮 *ACTUALIZACIÓN DE REPARACIÓN XE*
 
 Hola ${d.cliente} 👋
@@ -479,6 +489,7 @@ Tenemos una nueva actualización de tu equipo *${equipoTexto}*.
 
 Consulta el historial completo aquí:
 *${link}*
+${invitacionResena}
 
 ⚡ *XE Servicio Electrónico*`;
   const url=`https://wa.me/${numeroCliente}?text=${encodeURIComponent(mensaje)}`;
